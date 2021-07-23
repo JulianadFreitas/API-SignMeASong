@@ -9,12 +9,12 @@ async function AddRecomendation(req: Request, res: Response) {
   try {
     if (!name || !youtubeLink) return res.sendStatus(403);
   
-    if (error) return res.status(422).send({ message: error.details[0].message });
+    if (error) return res.status(403).send({ message: error.details[0].message });
 
     const createdMusic = await createMusic(name, youtubeLink);
 
     !createdMusic ? res.sendStatus(409) : res.sendStatus(201);
-    
+
   } catch (error) {
     console.log(error);
     res.sendStatus(500);

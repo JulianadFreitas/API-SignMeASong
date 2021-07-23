@@ -14,3 +14,12 @@ export async function musicCheck(youtubeLink: string) {
 
   return result.rows;
 }
+
+export async function deleteRecommendation(songId: number) {
+    await connection.query(
+     'DELETE FROM musics WHERE id = $1',
+     [songId]
+     );
+  }
+
+

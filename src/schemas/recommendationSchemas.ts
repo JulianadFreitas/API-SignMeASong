@@ -5,5 +5,8 @@ const postRecommendationSchema = joi.object({
     youtubeLink: joi.string().uri().required()
 })
 
+const paramIdSchema = joi.object({
+    id: joi.number().integer().positive().required()
+})
 
-export {postRecommendationSchema}
+export {postRecommendationSchema, paramIdSchema}
