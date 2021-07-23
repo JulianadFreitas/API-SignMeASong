@@ -1,13 +1,12 @@
+import * as recommendationRepository from "../repositories/recommendationRepository";
 
-import {musicCheck} from "../repositories/recommendationRepository"
-async function createRecommendation(name: string, youtubeLink:string) {
-  const music = await musicCheck(youtubeLink);
-  if(music.length > 0){
-      return false
-  } else {
-    await createRecommendation(name, youtubeLink) 
-    return true
-  }
+async function createMusic(name: string, youtubeLink: string) {
+  const music = await recommendationRepository.musicCheck(youtubeLink);
+  if (music.length > 0) return false;
+
+  await recommendationRepository.createRecommendation(name, youtubeLink);
+
+  return true;
 }
 
-export { createRecommendation };
+export { createMusic };
