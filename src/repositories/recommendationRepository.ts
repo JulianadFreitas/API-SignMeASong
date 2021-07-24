@@ -1,4 +1,5 @@
 import connection from "../database";
+import * as scoreRepository from "../repositories/scoreRepository";
 
 export async function createRecommendation(name: string, youtubeLink: string) {
   await connection.query(
@@ -6,6 +7,7 @@ export async function createRecommendation(name: string, youtubeLink: string) {
     [name, youtubeLink, 0]
   );
 }
+
 export async function musicCheck(youtubeLink: string) {
   const result = await connection.query(
     'SELECT * FROM musics WHERE "youtubeLink" = $1',
@@ -15,11 +17,16 @@ export async function musicCheck(youtubeLink: string) {
   return result.rows;
 }
 
-export async function deleteRecommendation(songId: number) {
-    await connection.query(
-     'DELETE FROM musics WHERE id = $1',
-     [songId]
-     );
+export async function deleteOrdecrease(songId: number) {
+  const result = await connection.query("SELECT * FROM musics WHERE id = $1", [
+    songId,
+  ]);
+  if (!result.rows[0]) return false;
+  if (result.rows[0].score === -5) {
+    await connection.query("DELETE FROM musics WHERE id = $1", [songId]);
+    return false;
   }
 
-
+  await scoreRepository.decreaseScore(songId);
+  return true;
+}

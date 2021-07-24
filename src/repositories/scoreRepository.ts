@@ -1,12 +1,10 @@
 import connection from "../database";
 
-
 export async function findMusicById(songId: number) {
     const result = await connection.query(
       'SELECT * FROM musics WHERE id = $1',
       [songId]
     );
-    
     return result.rows[0];
   }
 

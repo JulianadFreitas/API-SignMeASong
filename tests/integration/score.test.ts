@@ -1,55 +1,95 @@
+import "../../src/setup.ts";
+import supertest from "supertest";
+import app from "../../src/app";
+import connection from "../../src/database";
+import { insertMusic } from "../factories/musicfactory";
+import { endConnection, cleanDatabase } from "../utils.ts/databaseUtils";
 
- import "../../src/setup.ts";
- import supertest from "supertest";
- import app from "../../src/app";
- import connection from "../../src/database";
- import { insertMusic } from "../factories/musicfactory";
- export {insertMusic} from "../factories/musicfactory";
+const agent = supertest(app);
+const db = connection;
 
- beforeEach( async () => {
-   await connection.query("TRUNCATE musics RESTART IDENTITY");
- });
+beforeEach(cleanDatabase);
+afterEach(cleanDatabase);
+afterAll(endConnection);
 
-  afterAll( async() => {
-   await connection.end();
+describe("POST /recommendations/:id/upvote", () => {
+  it("returns status 201 when added a vote successfully", async () => {
+    await insertMusic();
+    const response = await agent.post("/recommendations/1/upvote");
+    expect(response.status).toBe(201);
   });
 
- describe("POST /recommendations/:id/upvote", () => {
-   it("returns status 201 when added a vote successfully", async () => {
-      await insertMusic();
-      const response = await supertest(app).post("/recommendations/1/upvote");
-      expect(response.status).toBe(201);
-   });
+  it("verifies if a point has been added to the score", async () => {
+    await insertMusic();
+    await agent.post("/recommendations/1/upvote");
+    const response = await db.query('SELECT * FROM musics WHERE id = $1', [1]);
+    expect(response.rows[0].score).toEqual(1);
+  });
 
-   it("returns 404 if the song is not registered", async () => {
-      await insertMusic();
-      const response = await supertest(app).post("/recommendations/30/upvote");
-      expect(response.status).toBe(404);
-    });
+  it("returns 404 if the song is not registered", async () => {
+    await insertMusic();
+    const response = await agent.post("/recommendations/30/upvote");
+    expect(response.status).toBe(404);
+  });
 
-   it('returns 404 if the song is not registered', async() => {
-      const response = await supertest(app).post("/recommendations/1/upvote");
-      expect(response.status).toEqual(404);
-    });
+  it("returns 404 if the song is not registered", async () => {
+    const response = await agent.post("/recommendations/1/upvote");
+    expect(response.status).toBe(404);
+  });
 
-    it('returns 403 for wrong id param (not a number)', async() => {
-      const response = await supertest(app).post("/recommendations/wrongIdParam/upvote");
-      expect(response.status).toEqual(403);
-    });
+  it("returns 403 for wrong id param (not a number)", async () => {
+    const response = await agent.post("/recommendations/wrongIdParam/upvote");
+    expect(response.status).toBe(403);
+  });
+});
 
-    it('verifies if a song has been delete if the score is lower than -5', async() => {
+describe("POST /recommendations/:id/downvote", () => {
+  it("returns status 201 when down voted have successfully", async () => {
+    await insertMusic();
+    const response = await agent.post("/recommendations/1/downvote");
+    expect(response.status).toBe(201);
+  });
 
-        await insertMusic();
+  it("returns 404 if the song is not registered", async () => {
+    await insertMusic();
+    const response = await agent.post("/recommendations/30/downvote");
+    expect(response.status).toBe(404);
+  });
 
-        await supertest(app).post("/recommendations/1/downvote");
-        await supertest(app).post("/recommendations/1/downvote");
-        await supertest(app).post("/recommendations/1/downvote");
-        await supertest(app).post("/recommendations/1/downvote");
-        await supertest(app).post("/recommendations/1/downvote");
-        await supertest(app).post("/recommendations/1/downvote");
-        await supertest(app).post("/recommendations/1/downvote");
+  it("returns 404 if the song is not registered", async () => {
+    const response = await agent.post("/recommendations/1/upvote");
+    expect(response.status).toBe(404);
+  });
 
-        const score =  await connection.query('SELECT * FROM musics WHERE id = $1', [1])
-        expect(score.rows.length).toEqual(0);
-      });
- });
+  it("returns 403 for wrong id param (not a number)", async () => {
+    await insertMusic();
+    const response = await agent.post("/recommendations/wrongIdParam/upvote");
+    expect(response.status).toBe(403);
+  });
+  
+  it("returns 403 for wrong id param (negative number)", async () => {
+    await insertMusic();
+    const response = await agent.post("/recommendations/-1/upvote");
+    expect(response.status).toBe(403);
+  });
+
+  it("verifies if a point has been deleted to the score", async () => {
+    await insertMusic();
+    await agent.post("/recommendations/1/downvote");
+    await agent.post("/recommendations/1/downvote");
+    const response = await db.query('SELECT * FROM musics WHERE id = $1', [1]);
+    expect(response.rows[0].score).toEqual(-2);
+  });
+  
+  it("verifies if a song has been delete if the score is lower than -5", async () => {
+    await insertMusic();
+    for (let i = 0; i <= 6; i++) {
+      await agent.post("/recommendations/1/downvote");
+    }
+
+    const finalScore = await connection.query("SELECT * FROM musics WHERE id = $1", [1]);
+    console.log(finalScore.rows);
+    expect(finalScore.rows.length).toEqual(0);
+  });
+
+});
