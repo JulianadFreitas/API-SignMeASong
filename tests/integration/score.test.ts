@@ -3,7 +3,7 @@ import supertest from "supertest";
 import app from "../../src/app";
 import connection from "../../src/database";
 import { createMusic } from "../factories/musicfactory";
-import { endConnection, cleanDatabase } from "../utils.ts/databaseUtils";
+import { endConnection, cleanDatabase } from "../utils/databaseUtils";
 
 const agent = supertest(app);
 const db = connection;

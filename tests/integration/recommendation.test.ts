@@ -2,7 +2,7 @@ import "../../src/setup.ts";
 import supertest from "supertest";
 import app from "../../src/app";
 import { generateMusicBody } from "../factories/bodyFactory";
-import { endConnection, cleanDatabase } from "../utils.ts/databaseUtils";
+import { endConnection, cleanDatabase } from "../utils/databaseUtils";
 import {createMusic} from "../factories/musicfactory";
 
 const agent = supertest(app);
