@@ -1,23 +1,15 @@
 import "../../src/setup.ts";
 import supertest from "supertest";
 import app from "../../src/app";
-import connection from "../../src/database";
 import { generateMusicBody } from "../factories/bodyFactory";
 import { endConnection, cleanDatabase } from "../utils.ts/databaseUtils";
+import {createMusic} from "../factories/musicfactory";
 
 const agent = supertest(app);
 
 beforeEach(cleanDatabase);
-afterEach(cleanDatabase);
+//afterEach(cleanDatabase);
 afterAll( endConnection);
-
-describe("GET /test", () => {
-  it('should answer with text "OK!" and status 200', async () => {
-    const response = await agent.get("/test");
-    expect(response.text).toBe("OK!");
-    expect(response.status).toBe(200);
-  });
-});
 
 describe("POST /recommendations", () => {
   it("returns status 201 when added recommendation", async () => {
@@ -63,3 +55,17 @@ describe("POST /recommendations", () => {
     expect(response.status).toBe(403);
   });
 });
+
+ describe("POST /recommendations/random", () => {
+   beforeEach(async() => await createMusic());
+   it("returns status 201 when added recommendation", async () => {
+     await createMusic();
+     const body = createMusic();
+     await agent.post("/recommendations").send({...body, youtubeLink:"https:www.youtube.com/watch?v=iIuyjJ7co8Y", score:5});
+     await agent.post("/recommendations").send({...body, youtubeLink:"https:www.youtube.com/watch?v=iIuyjJ7uo8Y", score:5});
+     const response = await agent.post("/recommendations/random");
+     console.log(response.body)
+     expect(response.status).toBe(200);
+   });
+
+ });

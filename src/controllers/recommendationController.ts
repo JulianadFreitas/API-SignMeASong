@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import { postRecommendationSchema } from "../schemas/recommendationSchemas";
+import { postRecommendSchema, getRandRecommendSchema } from "../schemas/recommendationSchemas";
 import { createMusic } from "../services/recommendationServices";
+import { CaseRecommendation } from "../services/recommendationServices"
 
 async function AddRecomendation(req: Request, res: Response) {
   const { name, youtubeLink } = req.body;
-  console.log(name, youtubeLink);
-  const { error } = postRecommendationSchema.validate(req.body);
+  const { error } = postRecommendSchema.validate(req.body);
   try {
     if (!name || !youtubeLink) return res.sendStatus(403);
   
@@ -21,4 +21,18 @@ async function AddRecomendation(req: Request, res: Response) {
   }
 }
 
-export { AddRecomendation };
+async function GetRandomRecommend(req: Request, res: Response) {
+  const recommendation = await CaseRecommendation();
+  console.log(recommendation,"result recomendation")
+  const {error} = getRandRecommendSchema.validate(recommendation);
+  try {
+     if(!recommendation) return res.sendStatus(404);   
+     if (error) return res.sendStatus(400);   
+     return res.status(200).send(recommendation); 
+  }catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+}
+
+export { AddRecomendation, GetRandomRecommend };

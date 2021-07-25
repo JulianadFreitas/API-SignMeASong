@@ -1,12 +1,19 @@
 import joi from "joi"
 
-const postRecommendationSchema = joi.object({
+const postRecommendSchema = joi.object({
     name: joi.string().required(),
     youtubeLink: joi.string().uri().required()
-})
+});
 
 const paramIdSchema = joi.object({
     id: joi.number().integer().positive().required()
-})
+});
 
-export {postRecommendationSchema, paramIdSchema}
+const getRandRecommendSchema = joi.object({
+    id: joi.number().integer().positive().required(),
+    name: joi.string().required(),
+    youtubeLink: joi.string().uri().required(),
+    score: joi.number().integer().required(),
+});
+
+export {postRecommendSchema, paramIdSchema, getRandRecommendSchema}

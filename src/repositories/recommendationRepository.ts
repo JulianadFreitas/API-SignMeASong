@@ -17,6 +17,13 @@ export async function musicCheck(youtubeLink: string) {
   return result.rows;
 }
 
+export async function getAllMusics() {
+  const result = await connection.query(
+    'SELECT * FROM musics');
+    console.log(result.rows,"HEEEEY")
+  return result.rows;
+}
+
 export async function deleteOrdecrease(songId: number) {
   const result = await connection.query("SELECT * FROM musics WHERE id = $1", [
     songId,

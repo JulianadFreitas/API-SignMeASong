@@ -11,7 +11,7 @@ async function AddVote(req: Request, res: Response) {
     const upVoted = await upVote(songId);
 
     !upVoted ? res.sendStatus(404) : res.sendStatus(201);
-    
+
   } catch (error) {
     console.log(error);
     res.sendStatus(500);
@@ -32,4 +32,5 @@ async function DownVote(req: Request, res: Response) {
     res.sendStatus(500);
   }
 }
+
 export { AddVote, DownVote };
