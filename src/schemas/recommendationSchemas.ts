@@ -16,4 +16,8 @@ const getRandRecommendSchema = joi.object({
     score: joi.number().integer().required(),
 });
 
-export {postRecommendSchema, paramIdSchema, getRandRecommendSchema}
+const paramAmountSchema = joi.object({
+    param: joi.number().integer().positive().required()
+});
+
+export {postRecommendSchema, paramIdSchema, getRandRecommendSchema, paramAmountSchema}

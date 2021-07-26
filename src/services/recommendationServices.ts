@@ -1,6 +1,6 @@
 
 import * as recommendationRepository from "../repositories/recommendationRepository";
-async function createMusic(name: string, youtubeLink: string) {
+export async function createMusic(name: string, youtubeLink: string) {
   const music = await recommendationRepository.musicCheck(youtubeLink);
   if (music.length > 0) return false;
 
@@ -9,7 +9,14 @@ async function createMusic(name: string, youtubeLink: string) {
   return true;
 }
 
-async function CaseRecommendation() {
+export async function amountMusics(amount: number) {
+  const musics = await recommendationRepository.getTopMusics(amount);
+  console.log(musics,'aquiiiiiiiiiii')
+  if (musics.length >= 0) return musics;
+  return null;
+}
+
+export async function caseRecommendation() {
   const random = Math.random();
   const list:Array<{id:number, name:string, youtubeLink:string, score:number}> = await recommendationRepository.getAllMusics();
   const classOfMusics = Math.floor(random * 100);
@@ -26,7 +33,7 @@ async function CaseRecommendation() {
     console.log(topMusics[indexOfList],"INDEX")
     return topMusics[indexOfList];
 
-  } else if(classOfMusics < 30) {
+  } if(classOfMusics <= 30) {
     const averageMusics = list.filter( e => {
       return (e.score <= 10 && e.score >= -5 ) 
     });
@@ -40,4 +47,5 @@ async function CaseRecommendation() {
   return false;
 }
 
-export { createMusic, CaseRecommendation };
+
+

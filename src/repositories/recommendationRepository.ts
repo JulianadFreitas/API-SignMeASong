@@ -24,6 +24,13 @@ export async function getAllMusics() {
   return result.rows;
 }
 
+export async function getTopMusics(amount:Number) {
+  const result = await connection.query("SELECT * FROM musics ORDER BY score DESC LIMIT $1", [amount])
+  console.log(result.rows)
+  return result.rows;
+}
+
+
 export async function deleteOrdecrease(songId: number) {
   const result = await connection.query("SELECT * FROM musics WHERE id = $1", [
     songId,

@@ -58,14 +58,13 @@ describe("POST /recommendations", () => {
 
  describe("POST /recommendations/random", () => {
    beforeEach(async() => await createMusic());
-   it("returns status 201 when added recommendation", async () => {
-     await createMusic();
-     const body = createMusic();
-     await agent.post("/recommendations").send({...body, youtubeLink:"https:www.youtube.com/watch?v=iIuyjJ7co8Y", score:5});
-     await agent.post("/recommendations").send({...body, youtubeLink:"https:www.youtube.com/watch?v=iIuyjJ7uo8Y", score:5});
-     const response = await agent.post("/recommendations/random");
-     console.log(response.body)
+   it("returns status 200 for valid params", async () => {
+     const response = await agent.get("/recommendations/random");
      expect(response.status).toBe(200);
    });
-
+   it('returns status 404 when there is no songs on the list', async() => {
+    await cleanDatabase()
+    const response = await agent.get("/recommendations/random");
+    expect(response.status).toEqual(404);
+  });
  });
